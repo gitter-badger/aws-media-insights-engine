@@ -10,6 +10,7 @@
 #  ./build-s3-dist.sh {SOURCE-BUCKET} {VERSION} {REGION} [PROFILE]
 #    SOURCE-BUCKET should be the name for the S3 bucket location where the
 #      template will source the Lambda code from.
+#      The templates will append '-[region_name]' to this bucket name.
 #    VERSION should be in a format like v1.0.0
 #    REGION needs to be in a format like us-east-1
 #    PROFILE is optional. It's the profile  that you have setup in ~/.aws/config
@@ -59,6 +60,8 @@ fi
 
 # Get reference for all important folders
 template_dir="$PWD"
+template_dist_dir="$template_dir/global-s3-assets"
+build_dist_dir="$template_dir/regional-s3-assets"
 dist_dir="$template_dir/dist"
 source_dir="$template_dir/../source"
 workflows_dir="$template_dir/../source/workflows"
@@ -94,12 +97,14 @@ echo "--------------------------------------------------------------------------
 echo "Create distribution directory"
 echo "------------------------------------------------------------------------------"
 
-# Setting up directories
-echo "rm -rf $dist_dir"
-rm -rf "$dist_dir"
-# Create new dist directory
-echo "mkdir -p $dist_dir"
-mkdir -p "$dist_dir"
+echo "rm -rf $template_dist_dir"
+rm -rf $template_dist_dir
+echo "mkdir -p $template_dist_dir"
+mkdir -p $template_dist_dir
+echo "rm -rf $build_dist_dir"
+rm -rf $build_dist_dir
+echo "mkdir -p $build_dist_dir"
+mkdir -p $build_dist_dir
 
 echo "------------------------------------------------------------------------------"
 echo "Building MIEHelper package"
@@ -166,10 +171,10 @@ else
   echo "Downloading https://rodeolabz-$region.$s3domain/media_insights_engine/media_insights_engine_lambda_layer_python3.8.zip"
   wget -q https://rodeolabz-"$region"."$s3domain"/media_insights_engine/media_insights_engine_lambda_layer_python3.8.zip
 fi
-echo "Copying Lambda layer zips to $dist_dir:"
-cp -v media_insights_engine_lambda_layer_python3.6.zip "$dist_dir"
-cp -v media_insights_engine_lambda_layer_python3.7.zip "$dist_dir"
-cp -v media_insights_engine_lambda_layer_python3.8.zip "$dist_dir"
+echo "Copying Lambda layer zips to $build_dist_dir:"
+cp -v media_insights_engine_lambda_layer_python3.6.zip "$build_dist_dir"
+cp -v media_insights_engine_lambda_layer_python3.7.zip "$build_dist_dir"
+cp -v media_insights_engine_lambda_layer_python3.8.zip "$build_dist_dir"
 mv requirements.txt.old requirements.txt
 cd "$template_dir" || exit 1
 
@@ -178,27 +183,27 @@ echo "CloudFormation Templates"
 echo "------------------------------------------------------------------------------"
 
 echo "Preparing template files:"
-cp "$template_dir/media-insights-stack.yaml" "$dist_dir/media-insights-stack.template"
-cp "$template_dir/string.yaml" "$dist_dir/string.template"
-cp "$template_dir/media-insights-dataplane-streaming-stack.template" "$dist_dir/media-insights-dataplane-streaming-stack.template"
-cp "$workflows_dir/rekognition.yaml" "$dist_dir/rekognition.template"
-cp "$workflows_dir/MieCompleteWorkflow.yaml" "$dist_dir/MieCompleteWorkflow.template"
-cp "$source_dir/consumers/elastic/media-insights-elasticsearch.yaml" "$dist_dir/media-insights-elasticsearch.template"
-cp "$webapp_dir/media-insights-webapp.yaml" "$dist_dir/media-insights-webapp.template"
-find "$dist_dir"
+cp "$template_dir/media-insights-stack.yaml" "$template_dist_dir/media-insights-stack.template"
+cp "$template_dir/string.yaml" "$template_dist_dir/string.template"
+cp "$template_dir/media-insights-dataplane-streaming-stack.template" "$template_dist_dir/media-insights-dataplane-streaming-stack.template"
+cp "$workflows_dir/rekognition.yaml" "$template_dist_dir/rekognition.template"
+cp "$workflows_dir/MieCompleteWorkflow.yaml" "$template_dist_dir/MieCompleteWorkflow.template"
+cp "$source_dir/consumers/elastic/media-insights-elasticsearch.yaml" "$template_dist_dir/media-insights-elasticsearch.template"
+cp "$webapp_dir/media-insights-webapp.yaml" "$template_dist_dir/media-insights-webapp.template"
+find "$template_dist_dir"
 echo "Updating code source bucket in template files with '$bucket'"
 echo "Updating solution version in template files with '$version'"
 new_bucket="s/%%BUCKET_NAME%%/$bucket/g"
 new_version="s/%%VERSION%%/$version/g"
 # Update templates in place. Copy originals to [filename].orig
-sed -i.orig -e "$new_bucket" "$dist_dir/media-insights-stack.template"
-sed -i.orig -e "$new_version" "$dist_dir/media-insights-stack.template"
-sed -i.orig -e "$new_bucket" "$dist_dir/media-insights-dataplane-streaming-stack.template"
-sed -i.orig -e "$new_version" "$dist_dir/media-insights-dataplane-streaming-stack.template"
-sed -i.orig -e "$new_bucket" "$dist_dir/media-insights-elasticsearch.template"
-sed -i.orig -e "$new_version" "$dist_dir/media-insights-elasticsearch.template"
-sed -i.orig -e "$new_bucket" "$dist_dir/media-insights-webapp.template"
-sed -i.orig -e "$new_version" "$dist_dir/media-insights-webapp.template"
+sed -i.orig -e "$new_bucket" "$template_dist_dir/media-insights-stack.template"
+sed -i.orig -e "$new_version" "$template_dist_dir/media-insights-stack.template"
+sed -i.orig -e "$new_bucket" "$template_dist_dir/media-insights-dataplane-streaming-stack.template"
+sed -i.orig -e "$new_version" "$template_dist_dir/media-insights-dataplane-streaming-stack.template"
+sed -i.orig -e "$new_bucket" "$template_dist_dir/media-insights-elasticsearch.template"
+sed -i.orig -e "$new_version" "$template_dist_dir/media-insights-elasticsearch.template"
+sed -i.orig -e "$new_bucket" "$template_dist_dir/media-insights-webapp.template"
+sed -i.orig -e "$new_version" "$template_dist_dir/media-insights-webapp.template"
 
 echo "------------------------------------------------------------------------------"
 echo "Operators"
@@ -213,7 +218,7 @@ cd "$source_dir/operators/operator_failed" || exit 1
 [ -e dist ] && rm -r dist
 mkdir -p dist
 zip -q dist/operator_failed.zip operator_failed.py
-cp "./dist/operator_failed.zip" "$dist_dir/operator_failed.zip"
+cp "./dist/operator_failed.zip" "$build_dist_dir/operator_failed.zip"
 
 # ------------------------------------------------------------------------------"
 # Mediainfo Operation
@@ -227,7 +232,7 @@ mkdir -p dist
 # Add the app code to the dist zip.
 zip -q dist/mediainfo.zip mediainfo.py
 # Zip is ready. Copy it to the distribution directory.
-cp "./dist/mediainfo.zip" "$dist_dir/mediainfo.zip"
+cp "./dist/mediainfo.zip" "$build_dist_dir/mediainfo.zip"
 
 # ------------------------------------------------------------------------------"
 # Mediaconvert Operations
@@ -239,8 +244,8 @@ cd "$source_dir/operators/mediaconvert" || exit 1
 mkdir -p dist
 zip -q dist/start_media_convert.zip start_media_convert.py
 zip -q dist/get_media_convert.zip get_media_convert.py
-cp "./dist/start_media_convert.zip" "$dist_dir/start_media_convert.zip"
-cp "./dist/get_media_convert.zip" "$dist_dir/get_media_convert.zip"
+cp "./dist/start_media_convert.zip" "$build_dist_dir/start_media_convert.zip"
+cp "./dist/get_media_convert.zip" "$build_dist_dir/get_media_convert.zip"
 
 # ------------------------------------------------------------------------------"
 # Thumbnail Operations
@@ -257,7 +262,7 @@ elif [ -d ./dist/start_thumbnail.zip ]; then
   echo "Package already present"
 fi
 zip -q -g dist/start_thumbnail.zip start_thumbnail.py
-cp "./dist/start_thumbnail.zip" "$dist_dir/start_thumbnail.zip"
+cp "./dist/start_thumbnail.zip" "$build_dist_dir/start_thumbnail.zip"
 
 if ! [ -d ./dist/check_thumbnail.zip ]; then
   zip -q -r9 ./dist/check_thumbnail.zip .
@@ -265,7 +270,7 @@ elif [ -d ./dist/check_thumbnail.zip ]; then
   echo "Package already present"
 fi
 zip -q -g dist/check_thumbnail.zip check_thumbnail.py
-cp "./dist/check_thumbnail.zip" "$dist_dir/check_thumbnail.zip"
+cp "./dist/check_thumbnail.zip" "$build_dist_dir/check_thumbnail.zip"
 
 # ------------------------------------------------------------------------------"
 # Transcribe Operations
@@ -277,8 +282,8 @@ cd "$source_dir/operators/transcribe" || exit 1
 mkdir -p dist
 zip -q -g ./dist/start_transcribe.zip ./start_transcribe.py
 zip -q -g ./dist/get_transcribe.zip ./get_transcribe.py
-cp "./dist/start_transcribe.zip" "$dist_dir/start_transcribe.zip"
-cp "./dist/get_transcribe.zip" "$dist_dir/get_transcribe.zip"
+cp "./dist/start_transcribe.zip" "$build_dist_dir/start_transcribe.zip"
+cp "./dist/get_transcribe.zip" "$build_dist_dir/get_transcribe.zip"
 
 # ------------------------------------------------------------------------------"
 # Translate Operations
@@ -316,7 +321,7 @@ elif [ -d ../dist/start_translate.zip ]; then
 fi
 popd || exit 1
 zip -q -g ./dist/start_translate.zip ./start_translate.py
-cp "./dist/start_translate.zip" "$dist_dir/start_translate.zip"
+cp "./dist/start_translate.zip" "$build_dist_dir/start_translate.zip"
 
 # ------------------------------------------------------------------------------"
 # Polly operators
@@ -328,8 +333,8 @@ cd "$source_dir/operators/polly" || exit 1
 mkdir -p dist
 zip -q -g ./dist/start_polly.zip ./start_polly.py
 zip -q -g ./dist/get_polly.zip ./get_polly.py
-cp "./dist/start_polly.zip" "$dist_dir/start_polly.zip"
-cp "./dist/get_polly.zip" "$dist_dir/get_polly.zip"
+cp "./dist/start_polly.zip" "$build_dist_dir/start_polly.zip"
+cp "./dist/get_polly.zip" "$build_dist_dir/get_polly.zip"
 
 # ------------------------------------------------------------------------------"
 # Comprehend operators
@@ -369,9 +374,9 @@ for dir in ./*;
       zip -q -g dist/start_key_phrases.zip start_key_phrases.py
       zip -q -g dist/get_key_phrases.zip get_key_phrases.py
       echo "$PWD"
-      cp ./dist/start_key_phrases.zip "$dist_dir/start_key_phrases.zip"
-      cp ./dist/get_key_phrases.zip "$dist_dir/get_key_phrases.zip"
-      mv -f ./dist/*.zip "$dist_dir"
+      cp ./dist/start_key_phrases.zip "$build_dist_dir/start_key_phrases.zip"
+      cp ./dist/get_key_phrases.zip "$build_dist_dir/get_key_phrases.zip"
+      mv -f ./dist/*.zip "$build_dist_dir"
     elif [[ "$dir" == "./entities" ]]; then
       if ! [ -d ../dist/start_entity_detection.zip ]; then
       zip -q -r9 ../dist/start_entity_detection.zip .
@@ -387,7 +392,7 @@ for dir in ./*;
       echo "$PWD"
       zip -q -g dist/start_entity_detection.zip start_entity_detection.py
       zip -q -g dist/get_entity_detection.zip get_entity_detection.py
-      mv -f ./dist/*.zip "$dist_dir"
+      mv -f ./dist/*.zip "$build_dist_dir"
     fi
     cd ..
   done;
@@ -415,7 +420,7 @@ zip -q -r9 start_label_detection.zip start_label_detection.py
 zip -q -r9 check_label_detection_status.zip check_label_detection_status.py
 zip -q -r9 start_person_tracking.zip start_person_tracking.py
 zip -q -r9 check_person_tracking_status.zip check_person_tracking_status.py
-mv -f ./*.zip "$dist_dir"
+mv -f ./*.zip "$build_dist_dir"
 
 echo "------------------------------------------------------------------------------"
 echo "DynamoDB Stream Function"
@@ -448,7 +453,7 @@ zip -q -r9 ../dist/ddbstream.zip .
 popd || exit 1
 
 zip -q -g dist/ddbstream.zip ./*.py
-cp "./dist/ddbstream.zip" "$dist_dir/ddbstream.zip"
+cp "./dist/ddbstream.zip" "$build_dist_dir/ddbstream.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "Elasticsearch consumer Function"
@@ -482,7 +487,7 @@ zip -q -r9 ../dist/esconsumer.zip .
 popd || exit 1
 
 zip -q -g dist/esconsumer.zip ./*.py
-cp "./dist/esconsumer.zip" "$dist_dir/esconsumer.zip"
+cp "./dist/esconsumer.zip" "$build_dist_dir/esconsumer.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "Workflow Scheduler"
@@ -516,7 +521,7 @@ cd package || exit 1
 zip -q -r9 ../dist/workflow.zip .
 cd ..
 zip -q -g dist/workflow.zip ./*.py
-cp "./dist/workflow.zip" "$dist_dir/workflow.zip"
+cp "./dist/workflow.zip" "$build_dist_dir/workflow.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "Workflow API Stack"
@@ -533,14 +538,14 @@ fi
 echo "running chalice..."
 chalice package --merge-template external_resources.json dist
 echo "...chalice done"
-echo "cp ./dist/sam.json $dist_dir/media-insights-workflowapi-stack.template"
-cp dist/sam.json "$dist_dir"/media-insights-workflowapi-stack.template
+echo "cp ./dist/sam.json $template_dist_dir/media-insights-workflowapi-stack.template"
+cp dist/sam.json "$template_dist_dir"/media-insights-workflowapi-stack.template
 if [ $? -ne 0 ]; then
   echo "ERROR: Failed to build workflow api template"
   exit 1
 fi
-echo "cp ./dist/deployment.zip $dist_dir/workflowapi.zip"
-cp ./dist/deployment.zip "$dist_dir"/workflowapi.zip
+echo "cp ./dist/deployment.zip $build_dist_dir/workflowapi.zip"
+cp ./dist/deployment.zip "$build_dist_dir"/workflowapi.zip
 if [ $? -ne 0 ]; then
   echo "ERROR: Failed to build workflow api template"
   exit 1
@@ -560,14 +565,14 @@ if ! [ -x "$(command -v chalice)" ]; then
   exit 1
 fi
 chalice package --merge-template external_resources.json dist
-echo "cp ./dist/sam.json $dist_dir/media-insights-dataplane-api-stack.template"
-cp dist/sam.json "$dist_dir"/media-insights-dataplane-api-stack.template
+echo "cp ./dist/sam.json $template_dist_dir/media-insights-dataplane-api-stack.template"
+cp dist/sam.json "$template_dist_dir"/media-insights-dataplane-api-stack.template
 if [ $? -ne 0 ]; then
   echo "ERROR: Failed to build dataplane api template"
   exit 1
 fi
-echo "cp ./dist/deployment.zip $dist_dir/dataplaneapi.zip"
-cp ./dist/deployment.zip "$dist_dir"/dataplaneapi.zip
+echo "cp ./dist/deployment.zip $build_dist_dir/dataplaneapi.zip"
+cp ./dist/deployment.zip "$build_dist_dir"/dataplaneapi.zip
 if [ $? -ne 0 ]; then
   echo "ERROR: Failed to build dataplane api template"
   exit 1
@@ -583,7 +588,7 @@ cd "$webapp_dir/helper" || exit 1
 [ -e dist ] && rm -r dist
 mkdir -p dist
 zip -q -g ./dist/websitehelper.zip ./website_helper.py
-cp "./dist/websitehelper.zip" "$dist_dir/websitehelper.zip"
+cp "./dist/websitehelper.zip" "$build_dist_dir/websitehelper.zip"
 
 echo "Building Vue.js website"
 cd "$webapp_dir/" || exit 1
@@ -598,27 +603,27 @@ echo "Copy dist to S3"
 echo "------------------------------------------------------------------------------"
 
 echo "Copying the prepared distribution to S3..."
-for file in "$dist_dir"/*.zip
+for file in "$build_dist_dir"/*.zip
 do
   if [ -n "$profile" ]; then
-    aws s3 cp "$file" s3://"$bucket"/media-insights-solution/"$version"/code/ --profile "$profile"
+    aws s3 cp "$file" s3://"$bucket"-"$region"/media-insights-solution/"$version"/code/ --profile "$profile"
   else
-    aws s3 cp "$file" s3://"$bucket"/media-insights-solution/"$version"/code/
+    aws s3 cp "$file" s3://"$bucket"-"$region"/media-insights-solution/"$version"/code/
   fi
 done
-for file in "$dist_dir"/*.template
+for file in "$template_dist_dir"/*.template
 do
   if [ -n "$profile" ]; then
-    aws s3 cp "$file" s3://"$bucket"/media-insights-solution/"$version"/cf/ --profile "$profile"
+    aws s3 cp "$file" s3://"$bucket"-"$region"/media-insights-solution/"$version"/cf/ --profile "$profile"
   else
-    aws s3 cp "$file" s3://"$bucket"/media-insights-solution/"$version"/cf/
+    aws s3 cp "$file" s3://"$bucket"-"$region"/media-insights-solution/"$version"/cf/
   fi
 done
 echo "Uploading the MIE web app..."
 if [ -n "$profile" ]; then
-  aws s3 cp "$webapp_dir"/dist s3://"$bucket"/media-insights-solution/"$version"/code/website --recursive --profile "$profile"
+  aws s3 cp "$webapp_dir"/dist s3://"$bucket"-"$region"/media-insights-solution/"$version"/code/website --recursive --profile "$profile"
 else
-  aws s3 cp "$webapp_dir"/dist s3://"$bucket"/media-insights-solution/"$version"/code/website --recursive
+  aws s3 cp "$webapp_dir"/dist s3://"$bucket"-"$region"/media-insights-solution/"$version"/code/website --recursive
 fi
 
 echo "------------------------------------------------------------------------------"

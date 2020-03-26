@@ -503,8 +503,6 @@ Resources:
             AllowedMethods: ["GET", "POST"]
             AllowedOrigins: ["*"]
             Id: AllowUploadsFromWebApp
-      VersioningConfiguration:
-        Status: "Enabled"
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -814,7 +812,7 @@ Resources:
       CompatibleRuntimes:
         - python3.7
       Content:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -834,7 +832,7 @@ Resources:
       CompatibleRuntimes:
         - python3.7
       Content:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -891,7 +889,7 @@ Resources:
           DEFAULT_MAX_CONCURRENT_WORKFLOWS: 10
       Handler: app.workflow_scheduler_lambda
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -934,7 +932,7 @@ Resources:
               - Arn
       Handler: app.complete_stage_execution_lambda
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -964,7 +962,7 @@ Resources:
           WORKFLOW_TABLE_NAME: !Ref WorkflowTable
       Handler: app.filter_operation_lambda
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -990,7 +988,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "operatorFailedRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1009,10 +1007,7 @@ Resources:
       TemplateURL: !Join
         - ''
         - - 'https://'
-          - !FindInMap
-            - SourceCode
-            - General
-            - S3Bucket
+          - !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
           - .s3
           - '.amazonaws.com/'
           - !FindInMap
@@ -1024,7 +1019,7 @@ Resources:
         DataplaneTableName: !Ref DataplaneTable
         DataplaneBucketName: !Ref Dataplane
         UserPoolArn: !GetAtt MieUserPool.Arn
-        DeploymentPackageBucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        DeploymentPackageBucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         DeploymentPackageKey:
           !Join [
             "/",
@@ -1043,10 +1038,7 @@ Resources:
       TemplateURL: !Join
         - ''
         - - 'https://'
-          - !FindInMap
-            - SourceCode
-            - General
-            - S3Bucket
+          - !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
           - .s3
           - '.amazonaws.com/'
           - !FindInMap
@@ -1071,10 +1063,7 @@ Resources:
       TemplateURL: !Join
         - ''
         - - 'https://'
-          - !FindInMap
-            - SourceCode
-            - General
-            - S3Bucket
+          - !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
           - .s3
           - '.amazonaws.com/'
           - !FindInMap
@@ -1115,7 +1104,7 @@ Resources:
             - Outputs.APIHandlerArn
         DataPlaneBucket: !Ref Dataplane
         OperatorFailedHandlerLambdaArn: !GetAtt OperatorFailedLambda.Arn
-        DeploymentPackageBucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        DeploymentPackageBucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         DeploymentPackageKey:
           !Join [
             "/",
@@ -1686,7 +1675,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt genericDataLookupLambdaRole.Arn
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1713,7 +1702,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt mediainfoLambdaRole.Arn
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1741,7 +1730,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt comprehendRole.Arn
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1767,7 +1756,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt comprehendRole.Arn
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1793,7 +1782,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt comprehendRole.Arn
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1819,7 +1808,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt comprehendRole.Arn
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1848,7 +1837,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1876,7 +1865,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1903,7 +1892,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1931,7 +1920,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1958,7 +1947,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -1987,7 +1976,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2015,7 +2004,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2044,7 +2033,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2072,7 +2061,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2099,7 +2088,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2127,7 +2116,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2152,7 +2141,7 @@ Resources:
         - !Ref MediaInsightsEnginePython37Layer
       Role: !GetAtt "rekognitionLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2182,7 +2171,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "mediaConvertLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2207,7 +2196,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "mediaConvertLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2232,7 +2221,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "mediaConvertLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2257,7 +2246,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "mediaConvertLambdaRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2283,7 +2272,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "transcribeRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2307,7 +2296,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "transcribeRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2335,7 +2324,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "translateRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2363,7 +2352,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "pollyRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2387,7 +2376,7 @@ Resources:
         - !Ref "MediaInsightsEnginePython37Layer"
       Role: !GetAtt "pollyRole.Arn"
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -2665,10 +2654,7 @@ Resources:
       TemplateURL: !Join
         - ''
         - - 'https://'
-          - !FindInMap
-            - SourceCode
-            - General
-            - S3Bucket
+          - !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
           - .s3
           - '.amazonaws.com/'
           - !FindInMap
@@ -2699,10 +2685,7 @@ Resources:
       TemplateURL: !Join
         - ''
         - - 'https://'
-          - !FindInMap
-            - SourceCode
-            - General
-            - S3Bucket
+          - !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
           - .s3
           - '.amazonaws.com/'
           - !FindInMap
@@ -2743,7 +2726,7 @@ Resources:
           "/",
           [
             "https://s3.amazonaws.com",
-            !FindInMap ["SourceCode", "General", "S3Bucket"],
+            !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]],
             !FindInMap ["SourceCode", "General", "TemplateKeyPrefix"],
             "string.template",
           ],
@@ -2761,10 +2744,7 @@ Resources:
       TemplateURL: !Join
         - ''
         - - 'https://'
-          - !FindInMap
-            - SourceCode
-            - General
-            - S3Bucket
+          - !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
           - .s3
           - '.amazonaws.com/'
           - !FindInMap

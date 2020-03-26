@@ -53,7 +53,7 @@ Resources:
       Handler: "stream.lambda_handler"
       Role: !GetAtt LambdaStreamRole.Arn
       Code:
-        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]]
         S3Key:
           !Join [
             "/",
@@ -136,7 +136,7 @@ Resources:
           "/",
           [
             "https://s3.amazonaws.com",
-            !FindInMap ["SourceCode", "General", "S3Bucket"],
+            !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], Ref: "AWS::Region"]],
             !FindInMap ["SourceCode", "General", "TemplateKeyPrefix"],
             "media-insights-elasticsearch.template",
           ],

@@ -1,3 +1,5 @@
+deployment/global-s3-assets/
+deployment/regional-s3-assets/
 deployment/media-analysis-dataplane-api-stack.yaml
 venv/
 **/dist
