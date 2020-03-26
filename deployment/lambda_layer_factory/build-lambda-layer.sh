@@ -128,7 +128,7 @@ if [ -n "$S3_FQDN" ]; then
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
         then
             aws s3 cp lambda_layer-python3.6.zip s3://"$LAMBDA_LAYERS_BUCKET"
-            aws lambda publish-layer-version --layer-name $LAYER_NAME_36 --content S3Bucket="$LAMBDA_LAYERS_BUCKET",S3Key=lambda_layer-python3.6.zip --compatible-runtimes python3.6
+            aws lambda publish-layer-version --layer-name $LAYER_NAME_36 --content S3Bucket="$LAMBDA_LAYERS_BUCKET",S3Key=lambda_layer-python3.6.zip --compatible-runtimes python3.6 --license-info "This product uses MediaInfo (https://mediaarea.net/en/MediaInfo) library, Copyright (c) 2002-2020 MediaArea.net SARL."
             aws s3 rm s3://"$LAMBDA_LAYERS_BUCKET"/lambda_layer-python3.6.zip
             arn36=$(aws lambda list-layer-versions --layer-name lambda_layer-python36 --output text --query 'LayerVersions[0].LayerVersionArn')
         fi
@@ -140,7 +140,7 @@ if [ -n "$S3_FQDN" ]; then
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
         then
             aws s3 cp lambda_layer-python3.7.zip s3://"$LAMBDA_LAYERS_BUCKET"
-            aws lambda publish-layer-version --layer-name $LAYER_NAME_37 --content S3Bucket="$LAMBDA_LAYERS_BUCKET",S3Key=lambda_layer-python3.7.zip --compatible-runtimes python3.7
+            aws lambda publish-layer-version --layer-name $LAYER_NAME_37 --content S3Bucket="$LAMBDA_LAYERS_BUCKET",S3Key=lambda_layer-python3.7.zip --compatible-runtimes python3.7 --license-info "This product uses MediaInfo (https://mediaarea.net/en/MediaInfo) library, Copyright (c) 2002-2020 MediaArea.net SARL."
             aws s3 rm s3://"$LAMBDA_LAYERS_BUCKET"/lambda_layer-python3.7.zip
             arn37=$(aws lambda list-layer-versions --layer-name lambda_layer-python37 --output text --query 'LayerVersions[0].LayerVersionArn')
         fi
@@ -152,7 +152,7 @@ if [ -n "$S3_FQDN" ]; then
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
         then
             aws s3 cp lambda_layer-python3.8.zip s3://"$LAMBDA_LAYERS_BUCKET"
-            aws lambda publish-layer-version --layer-name $LAYER_NAME_38 --content S3Bucket="$LAMBDA_LAYERS_BUCKET",S3Key=lambda_layer-python3.8.zip --compatible-runtimes python3.8
+            aws lambda publish-layer-version --layer-name $LAYER_NAME_38 --content S3Bucket="$LAMBDA_LAYERS_BUCKET",S3Key=lambda_layer-python3.8.zip --compatible-runtimes python3.8 --license-info "This product uses MediaInfo (https://mediaarea.net/en/MediaInfo) library, Copyright (c) 2002-2020 MediaArea.net SARL."
             aws s3 rm s3://"$LAMBDA_LAYERS_BUCKET"/lambda_layer-python3.8.zip
             arn38=$(aws lambda list-layer-versions --layer-name lambda_layer-python37 --output text --query 'LayerVersions[0].LayerVersionArn')
         fi
